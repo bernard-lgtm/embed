@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Saxonwold Pattern</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #ebebeb;
+  --text: #0a0a0a;
+  --muted: #6b6b6b;
+  --subtle: #f0f0f0;
+
+  --amber: #a07830;
+  --amber-bg: #fdf8f0;
+  --amber-border: #e8d5aa;
+  --amber-icon: #c49a45;
+  --amber-dark: #5c3d14;
+
+  --red: #cc3333;
+  --red-bg: #fef4f4;
+  --red-border: #f0b8b8;
+  --red-icon: #d94444;
+  --red-dark: #6e1f1f;
+
+  --green: #3a7a52;
+  --green-bg: #f2f8f4;
+  --green-border: #a8d4b8;
+  --green-icon: #4a9965;
+  --green-dark: #1e4a30;
+
+  --both-bg: #fff6ed;
+  --both-accent: #e06828;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── HERO HEADER ── */
+.hero {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 64px 48px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c02828;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.1s forwards;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 20px; height: 2px;
+  background: #c02828;
+  border-radius: 1px;
+}
+
+h1 {
+  font-size: clamp(36px, 5vw, 68px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+  color: var(--text);
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.2s forwards;
+}
+
+h1 em {
+  font-style: normal;
+  color: #c02828;
+}
+
+.hero-sub {
+  font-size: 15px;
+  font-weight: 400;
+  color: #0a0a0a;
+  line-height: 1.45;
+  max-width: 520px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.3s forwards;
+}
+
+/* filter pills */
+.filter-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 48px 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.4s forwards;
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+  letter-spacing: -0.01em;
+}
+
+.pill:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+.pill.active-all   { background: #1e1e1e; color: #fff; border-color: #1e1e1e; }
+.pill.active-ping  { background: var(--amber-bg); color: var(--amber-dark); border-color: var(--amber-border); }
+.pill.active-call  { background: var(--red-bg); color: var(--red-dark); border-color: var(--red-border); }
+.pill.active-dep   { background: var(--green-bg); color: var(--green-dark); border-color: var(--green-border); }
+.pill.active-both  { background: #fff0e4; color: #7c3510; border-color: #f5c090; }
+
+.pill-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── MAIN GRID ── */
+.timeline-outer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 48px 80px;
+}
+
+/* Sticky column headers */
+.col-head-row {
+  display: grid;
+  grid-template-columns: 76px 1fr 1fr;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--bg);
+  padding: 0 0 2px;
+}
+
+.col-head-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+}
+
+.ch-blank { /* spacer */ }
+
+.ch-label {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-align: center;
+  padding: 16px 0 14px;
+  position: relative;
+}
+
+.ch-label::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20%; right: 20%;
+  height: 2px;
+  border-radius: 1px;
+  opacity: 0.7;
+}
+
+.ch-molefe::after  { background: var(--amber-icon); }
+.ch-deposits::after { background: var(--green-icon); }
+
+/* Month section */
+.month-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
+}
+
+.month-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.month-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 28px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.month-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Day row */
+.day-row {
+  display: grid;
+  grid-template-columns: 76px 1fr 1fr;
+  min-height: 60px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.day-row:hover { background: rgba(0,0,0,0.015); }
+
+.day-row.has-both { background: var(--both-bg); }
+.day-row.has-both:hover { background: #ffe9d5; }
+
+.day-row.fade-out {
+  opacity: 0.15;
+  transition: opacity 0.3s;
+}
+
+.day-row.fade-in {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+/* Same-day pulse dot */
+.day-row.has-both .date-cell::after {
+  content: '';
+  position: absolute;
+  left: 76px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #e06828;
+  box-shadow: 0 0 0 0 rgba(224,104,40,0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(224,104,40,0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(224,104,40,0); }
+  100% { box-shadow: 0 0 0 0 rgba(224,104,40,0); }
+}
+
+/* Date cell */
+.date-cell {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  line-height: 1.2;
+  gap: 1px;
+}
+
+.date-day  { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.date-mon  { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* Event cells */
+.event-cell {
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+}
+
+.event-cell:nth-child(2) { border-right: 1px solid var(--border); }
+
+/* ── NOTIFICATION CARDS ── */
+.notif {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px 9px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  width: fit-content;
+  max-width: 100%;
+  cursor: default;
+  position: relative;
+  transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
+  will-change: transform;
+}
+
+.notif::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+
+.notif:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+}
+
+.notif:hover::before { opacity: 1; }
+
+.notif:active { transform: scale(0.98); }
+
+/* Ping — amber */
+.notif-ping {
+  background: var(--amber-bg);
+  border-color: var(--amber-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+.notif-ping::before { background: radial-gradient(ellipse at top left, rgba(245,158,11,0.05), transparent 60%); }
+
+/* Call — red */
+.notif-call {
+  background: var(--red-bg);
+  border-color: var(--red-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+.notif-call::before { background: radial-gradient(ellipse at top left, rgba(239,68,68,0.05), transparent 60%); }
+
+/* Deposit — green */
+.notif-deposit {
+  background: var(--green-bg);
+  border-color: var(--green-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+.notif-deposit::before { background: radial-gradient(ellipse at top left, rgba(34,197,94,0.05), transparent 60%); }
+
+/* Icon */
+.notif-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.icon-ping    { background: linear-gradient(145deg, #d4aa60, #c49a45); }
+/* ── PING ICON ANIMATION ── */
+.icon-ping {
+  position: relative;
+  overflow: visible !important;
+}
+
+.icon-ping::before,
+.icon-ping::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 9px;
+  border: 1.5px solid #c49a45;
+  opacity: 0;
+  animation: pingRipple 2.8s cubic-bezier(0.15, 0.5, 0.4, 1) infinite;
+}
+
+.icon-ping::after {
+  animation-delay: 1.4s;
+}
+
+@keyframes pingRipple {
+  0%   { transform: scale(1);   opacity: 0.65; }
+  25%  { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(2.0); opacity: 0; }
+}
+
+.notif-ping .notif-icon span {
+  display: inline-block;
+  animation: pinBounce 2.4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+@keyframes pinBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(-3px); }
+}
+
+.icon-call    { background: linear-gradient(145deg, #e06868, #d94444); }
+.icon-deposit { background: linear-gradient(145deg, #6ab585, #4a9965); }
+
+/* Text */
+.notif-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+
+.notif-app {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.notif-ping  .notif-app { color: #6b4a20; }
+.notif-call  .notif-app { color: #7a2020; }
+.notif-deposit .notif-app { color: #245c38; }
+
+.notif-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.notif-ping  .notif-title { color: var(--amber-dark); }
+.notif-call  .notif-title { color: var(--red-dark); }
+.notif-deposit .notif-title { color: #1e4a30; }
+
+.notif-sub {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.amount-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green-dark);
+  letter-spacing: -0.02em;
+}
+
+/* ── SOURCE LINE ── */
+.source-line {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 48px 60px;
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.source-line::before {
+  content: '';
+  width: 16px; height: 1px;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Notif entrance */
+.notif {
+  opacity: 0;
+  animation: notifIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+@keyframes notifIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Stagger delays set by JS */
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  .hero, .timeline-outer, .filter-row, .source-line { padding-left: 20px; padding-right: 20px; }
+  .col-head-row { grid-template-columns: 52px 1fr 1fr; }
+  .day-row { grid-template-columns: 52px 1fr 1fr; }
+  .date-day { font-size: 14px; }
+  .notif { padding: 7px 10px 7px 8px; }
+  .notif-icon { width: 26px; height: 26px; font-size: 12px; }
+  .ch-label { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">State Capture Investigation</div>
+  <h1>The <em>Saxonwold</em><br>Pattern</h1>
+  <p class="hero-sub">Phone pings placing <strong>Brian Molefe</strong> near the <strong>Gupta compound</strong> — and cash deposits into <strong>Palcocap</strong> — tracked across <strong>eight months</strong> in 2015–2016.</p>
+</div>
+
+<div class="filter-row" id="filters">
+  <button class="pill active-all" data-filter="all" onclick="setFilter('all')">
+    <span class="pill-dot" style="background:#0a0a0a"></span> All events
+  </button>
+  <button class="pill" data-filter="ping" onclick="setFilter('ping')">
+    <span class="pill-dot" style="background:#f59e0b"></span> Saxonwold pings
+  </button>
+  <button class="pill" data-filter="call" onclick="setFilter('call')">
+    <span class="pill-dot" style="background:#ef4444"></span> Gupta calls
+  </button>
+  <button class="pill" data-filter="deposit" onclick="setFilter('deposit')">
+    <span class="pill-dot" style="background:#22c55e"></span> Cash deposits
+  </button>
+</div>
+
+<div class="timeline-outer">
+  <div class="col-head-row">
+    <div class="ch-blank"></div>
+    <div class="ch-label ch-molefe">Brian Molefe</div>
+    <div class="ch-label ch-deposits">Palcocap Cash Deposits</div>
+  </div>
+  <div id="timeline"></div>
+</div>
+
+<div class="source-line">Sources: Public Protector "State of Capture" Report (2016) · Madonsela Report · Palcocap ADT Cash Deposit Records</div>
+
+<script>
+const events = [
+  { date:"2015-08-05", molefe:[{type:"ping",app:"Location",title:"Saxonwold",sub:"Pinged near Gupta compound"}], deposits:[{title:"OR Tambo ATM",sub:"× 2 deposits",amount:39200}] },
+  { date:"2015-08-13", molefe:[{type:"call",app:"Phone",title:"Nazeem Howa",sub:""}], deposits:[] },
+  { date:"2015-08-14", molefe:[], deposits:[{title:"Menlyn Square ATM",sub:"× 2 deposits",amount:20000}] },
+  { date:"2015-08-17", molefe:[{type:"ping",app:"Location",title:"Saxonwold",sub:"Pinged near Gupta compound"}], deposits:[{title:"Irene Mall ATM",sub:"× 2 deposits",amount:21600}] },
+  { date:"2015-08-18", molefe:[{type:"ping",app:"Location",title:"Saxonwold",sub:"Pinged near Gupta compound"}], deposits:[] },
+  { date:"2015-08-19", molefe:[{type:"ping",app:"Location",title:"Saxonwold",sub:"Pinged near Gupta compound"}], deposits:[] },
+  { date:"2015-08-23", molefe:[{type:"ping",app:"Location",title:"Saxonwold",sub:"Pinged near Gupta compound"}], deposits:[] },
+  { date:"2015-08-24", molefe:[
+    {type:"call",app:"Phone",title:"Nazeem Howa",sub:""},
+    {type:"call",app:"Phone",title:"Rajesh Gupta",sub:""},
+    {type:"call",app:"Phone",title:"Nazeem Howa",sub:""},
+    {type:"call",app:"Phone",title:"Rajesh Gupta",sub:""}
+  ], deposits:[{title:"OR Tambo ATM",sub:"× 3 deposits",amount:28600}] },
+  { date:"2015-08-25", molefe:[], deposits:[{title:"Centurion ATM",sub:"× 2 deposits",amount:29700}] },
+  { date:"2015-08-28", molefe:[{type:"ping",app:"Location",title:"Saxonwold",sub:"Pinged near Gupta compound"}], deposits:[] },
+  { date:"2015-08-31", molefe:[], deposits:[{title:"Centurion ATM",sub:"Single deposit",amount:35400}] },
+  { date:"2015-10-16", molefe:[{type:"call",app:"Phone",title:"Atul Gupta",sub:""}], deposits:[{title:"Woodmead ATM",sub:"× 2 deposits",amount:22100}] },
+  { date:"2015-10-17", molefe:[], deposits:[{title:"Irene Mall + Menlyn Square",sub:"× 4 deposits",amount:61060}] },
+  { date:"2015-10-19", molefe:[], deposits:[{title:"Melrose Arch + Centurion",sub:"× 6 deposits",amount:94700}] },
+  { date:"2015-11-17", molefe:[{type:"ping",app:"Location",title:"Saxonwold",sub:"Pinged near Gupta compound"}], deposits:[{title:"Brooklyn + Melrose Arch",sub:"× 5 deposits",amount:78400}] },
+  { date:"2015-12-14", molefe:[{type:"call",app:"Phone",title:"Rajesh Gupta",sub:""}], deposits:[{title:"Hartbeespoort + Menlyn Square",sub:"× 4 deposits",amount:76720}] },
+  { date:"2015-12-15", molefe:[], deposits:[{title:"Melrose Arch ATM",sub:"Single deposit",amount:19600}] },
+  { date:"2015-12-17", molefe:[], deposits:[{title:"Plettenberg Bay ATM",sub:"× 2 deposits",amount:38800}] },
+  { date:"2016-02-02", molefe:[{type:"call",app:"Phone",title:"Rajesh Gupta",sub:""}], deposits:[] },
+  { date:"2016-02-08", molefe:[], deposits:[{title:"Centurion ATM",sub:"× 2 deposits",amount:38900}] },
+  { date:"2016-03-14", molefe:[{type:"call",app:"Phone",title:"Rajesh Gupta",sub:""}], deposits:[{title:"Hartbeespoort ATM",sub:"× 2 deposits",amount:38600}] },
+  { date:"2016-03-15", molefe:[], deposits:[{title:"Irene Mall ATM",sub:"× 2 deposits",amount:40000}] },
+  { date:"2016-03-16", molefe:[], deposits:[{title:"Centurion ATM",sub:"Single deposit",amount:39600}] },
+  { date:"2016-03-18", molefe:[], deposits:[{title:"Irene Mall ATM",sub:"Single deposit",amount:20000}] },
+  { date:"2016-03-19", molefe:[], deposits:[{title:"Hartbeespoort ATM",sub:"Single deposit",amount:39000}] },
+];
+
+const ICONS = { ping:'📍', call:'📞', deposit:'💳' };
+
+function fmtDate(d) {
+  const dt = new Date(d+'T00:00:00');
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return { day: dt.getDate(), mon: MONTHS[dt.getMonth()] };
+}
+
+function fmtR(n) { return 'R' + n.toLocaleString('en-ZA'); }
+
+function monthOf(d) {
+  const dt = new Date(d+'T00:00:00');
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return MONTHS[dt.getMonth()] + ' ' + dt.getFullYear();
+}
+
+function makeNotif(type, data, isDeposit, delay) {
+  const div = document.createElement('div');
+  div.className = `notif notif-${type}`;
+  div.style.animationDelay = `${delay}ms`;
+
+  const icon = document.createElement('div');
+  icon.className = `notif-icon icon-${type}`;
+  if (type === 'ping') {
+    const span = document.createElement('span');
+    span.textContent = ICONS[type];
+    icon.appendChild(span);
+  } else {
+    icon.textContent = ICONS[type];
+  }
+
+  const body = document.createElement('div');
+  body.className = 'notif-body';
+
+  const app = document.createElement('div');
+  app.className = 'notif-app';
+  app.textContent = data.app;
+
+  const title = document.createElement('div');
+  title.className = 'notif-title';
+  title.textContent = data.title;
+
+  body.appendChild(app);
+  body.appendChild(title);
+
+  if (isDeposit && data.sub) {
+    const sub = document.createElement('div');
+    sub.className = 'notif-sub';
+    sub.innerHTML = `${data.sub} · <span class="amount-val">${fmtR(data.amount)}</span>`;
+    body.appendChild(sub);
+  } else if (!isDeposit && data.sub) {
+    const sub = document.createElement('div');
+    sub.className = 'notif-sub';
+    sub.textContent = data.sub;
+    body.appendChild(sub);
+  } else if (isDeposit) {
+    const sub = document.createElement('div');
+    sub.className = 'notif-sub';
+    sub.innerHTML = `<span class="amount-val">${fmtR(data.amount)}</span>`;
+    body.appendChild(sub);
+  }
+
+  div.appendChild(icon);
+  div.appendChild(body);
+  return div;
+}
+
+// Group by month
+const groups = {};
+events.forEach(e => {
+  const m = monthOf(e.date);
+  if (!groups[m]) groups[m] = [];
+  groups[m].push(e);
+});
+
+const timeline = document.getElementById('timeline');
+
+Object.entries(groups).forEach(([month, rows]) => {
+  const section = document.createElement('div');
+  section.className = 'month-section';
+
+  const heading = document.createElement('div');
+  heading.className = 'month-heading';
+  heading.textContent = month;
+  section.appendChild(heading);
+
+  rows.forEach((ev, rowIdx) => {
+    const hasMolefe = ev.molefe.length > 0;
+    const hasDeposit = ev.deposits.length > 0;
+    const hasBoth = hasMolefe && hasDeposit;
+
+    const row = document.createElement('div');
+    row.className = 'day-row' + (hasBoth ? ' has-both' : '');
+    row.dataset.hasPing   = ev.molefe.some(m => m.type === 'ping') ? '1' : '0';
+    row.dataset.hasCall   = ev.molefe.some(m => m.type === 'call') ? '1' : '0';
+    row.dataset.hasDeposit = hasDeposit ? '1' : '0';
+    row.dataset.hasBoth   = hasBoth ? '1' : '0';
+
+    // Date cell
+    const { day, mon } = fmtDate(ev.date);
+    const dateCell = document.createElement('div');
+    dateCell.className = 'date-cell';
+    dateCell.innerHTML = `<span class="date-day">${day}</span><span class="date-mon">${mon}</span>`;
+
+    // Molefe cell
+    const mCell = document.createElement('div');
+    mCell.className = 'event-cell';
+    let delay = rowIdx * 30;
+    ev.molefe.forEach(m => {
+      mCell.appendChild(makeNotif(m.type, m, false, delay));
+      delay += 60;
+    });
+
+    // Deposit cell
+    const dCell = document.createElement('div');
+    dCell.className = 'event-cell';
+    ev.deposits.forEach(d => {
+      dCell.appendChild(makeNotif('deposit', {...d, app:'ADT Cash'}, true, delay));
+      delay += 60;
+    });
+
+    row.appendChild(dateCell);
+    row.appendChild(mCell);
+    row.appendChild(dCell);
+    section.appendChild(row);
+  });
+
+  timeline.appendChild(section);
+});
+
+// ── FILTER ──
+let currentFilter = 'all';
+
+function setFilter(f) {
+  currentFilter = f;
+
+  // Update pill styles
+  document.querySelectorAll('.pill').forEach(p => {
+    p.classList.remove('active-all','active-ping','active-call','active-dep','active-both');
+  });
+  const activeMap = { all:'active-all', ping:'active-ping', call:'active-call', deposit:'active-dep', both:'active-both' };
+  document.querySelector(`[data-filter="${f}"]`).classList.add(activeMap[f]);
+
+  document.querySelectorAll('.day-row').forEach(row => {
+    let show = false;
+    if (f === 'all')     show = true;
+    if (f === 'ping')    show = row.dataset.hasPing === '1';
+    if (f === 'call')    show = row.dataset.hasCall === '1';
+    if (f === 'deposit') show = row.dataset.hasDeposit === '1';
+    if (f === 'both')    show = row.dataset.hasBoth === '1';
+
+    row.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+    if (show) {
+      row.style.opacity = '1';
+      row.style.transform = 'translateX(0)';
+      row.style.display = 'grid';
+    } else {
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(-6px)';
+      setTimeout(() => { if (currentFilter === f) row.style.display = 'none'; }, 260);
+    }
+  });
+
+  // Hide/show month headings if all rows hidden
+  document.querySelectorAll('.month-section').forEach(sec => {
+    const visible = [...sec.querySelectorAll('.day-row')].some(r => r.style.display !== 'none' && r.style.opacity !== '0');
+    sec.style.opacity = visible ? '1' : '0.2';
+  });
+}
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), 0);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.05 });
+
+document.querySelectorAll('.month-section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
