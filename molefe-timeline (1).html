@@ -9,7 +9,7 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg: #fafafa;
+  --bg: #ffffff;
   --surface: #ffffff;
   --border: #ebebeb;
   --text: #0a0a0a;
@@ -19,7 +19,7 @@
   --amber: #a07830;
   --amber-bg: #fdf8f0;
   --amber-border: #e8d5aa;
-  --amber-icon: #c49a45;
+  --amber-icon: #f0a500;
   --amber-dark: #5c3d14;
 
   --red: #cc3333;
@@ -34,7 +34,7 @@
   --green-icon: #4a9965;
   --green-dark: #1e4a30;
 
-  --both-bg: #fff6ed;
+  --both-bg: #f2f2f0;
   --both-accent: #e06828;
 }
 
@@ -55,6 +55,7 @@ body {
   padding: 64px 48px 48px;
   position: relative;
   overflow: hidden;
+  text-align: center;
 }
 
 .hero-eyebrow {
@@ -79,12 +80,13 @@ body {
 }
 
 h1 {
-  font-size: clamp(36px, 5vw, 68px);
-  font-weight: 900;
+  font-size: clamp(28px, 6vw, 76px);
+  font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 0.98;
-  color: var(--text);
+  color: #000000;
   margin-bottom: 24px;
+  white-space: nowrap;
   opacity: 0;
   animation: fadeUp 0.6s ease 0.2s forwards;
 }
@@ -102,6 +104,8 @@ h1 em {
   max-width: 520px;
   opacity: 0;
   animation: fadeUp 0.6s ease 0.3s forwards;
+  text-align: left;
+  display: inline-block;
 }
 
 /* filter pills */
@@ -114,6 +118,7 @@ h1 em {
   flex-wrap: wrap;
   opacity: 0;
   animation: fadeUp 0.6s ease 0.4s forwards;
+  justify-content: center;
 }
 
 .pill {
@@ -135,7 +140,7 @@ h1 em {
 
 .pill:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
-.pill.active-all   { background: #1e1e1e; color: #fff; border-color: #1e1e1e; }
+.pill.active-all   { background: #4a4a4a; color: #fff; border-color: #4a4a4a; }
 .pill.active-ping  { background: var(--amber-bg); color: var(--amber-dark); border-color: var(--amber-border); }
 .pill.active-call  { background: var(--red-bg); color: var(--red-dark); border-color: var(--red-border); }
 .pill.active-dep   { background: var(--green-bg); color: var(--green-dark); border-color: var(--green-border); }
@@ -178,11 +183,11 @@ h1 em {
 .ch-label {
   font-size: 15px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   color: var(--text);
   text-align: center;
-  padding: 16px 0 14px;
+  padding: 16px 18px 14px;
   position: relative;
 }
 
@@ -201,21 +206,19 @@ h1 em {
 /* Month section */
 .month-section {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
+  transition: opacity 0.5s ease;
 }
 
 .month-section.visible {
   opacity: 1;
-  transform: translateY(0);
 }
 
 .month-heading {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--text);
   padding: 28px 0 10px;
   display: flex;
   align-items: center;
@@ -242,7 +245,7 @@ h1 em {
 .day-row:hover { background: rgba(0,0,0,0.015); }
 
 .day-row.has-both { background: var(--both-bg); }
-.day-row.has-both:hover { background: #ffe9d5; }
+.day-row.has-both:hover { background: #ebebea; }
 
 .day-row.fade-out {
   opacity: 0.15;
@@ -254,25 +257,7 @@ h1 em {
   transition: opacity 0.3s;
 }
 
-/* Same-day pulse dot */
-.day-row.has-both .date-cell::after {
-  content: '';
-  position: absolute;
-  left: 76px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #e06828;
-  box-shadow: 0 0 0 0 rgba(224,104,40,0.4);
-  animation: pulse 2s infinite;
-}
 
-@keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(224,104,40,0.5); }
-  70%  { box-shadow: 0 0 0 6px rgba(224,104,40,0); }
-  100% { box-shadow: 0 0 0 0 rgba(224,104,40,0); }
-}
 
 /* Date cell */
 .date-cell {
@@ -290,7 +275,7 @@ h1 em {
   gap: 1px;
 }
 
-.date-day  { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.date-day  { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
 .date-mon  { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
 /* Event cells */
@@ -302,7 +287,11 @@ h1 em {
   justify-content: center;
 }
 
-.event-cell:nth-child(2) { border-right: 1px solid var(--border); }
+.event-cells-row {
+  display: contents; /* transparent wrapper on desktop — grid sees the children directly */
+}
+
+.event-cell:nth-child(1) { border-right: 1px solid var(--border); }
 
 /* ── NOTIFICATION CARDS ── */
 .notif {
@@ -331,7 +320,7 @@ h1 em {
 
 .notif:hover {
   transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.11), 0 2px 4px rgba(0,0,0,0.07);
 }
 
 .notif:hover::before { opacity: 1; }
@@ -374,7 +363,7 @@ h1 em {
   box-shadow: 0 1px 3px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
-.icon-ping    { background: linear-gradient(145deg, #d4aa60, #c49a45); }
+.icon-ping    { background: linear-gradient(145deg, #f5bc30, #e8a000); }
 /* ── PING ICON ANIMATION ── */
 .icon-ping {
   position: relative;
@@ -387,7 +376,7 @@ h1 em {
   position: absolute;
   inset: -1px;
   border-radius: 9px;
-  border: 1.5px solid #c49a45;
+  border: 1.5px solid #e8a000;
   opacity: 0;
   animation: pingRipple 2.8s cubic-bezier(0.15, 0.5, 0.4, 1) infinite;
 }
@@ -494,8 +483,12 @@ h1 em {
 /* Stagger delays set by JS */
 
 /* ── RESPONSIVE ── */
+/* ── TABLET ── */
 @media (max-width: 700px) {
-  .hero, .timeline-outer, .filter-row, .source-line { padding-left: 20px; padding-right: 20px; }
+  .hero, .timeline-outer, .filter-row, .source-line { padding-left: 0; padding-right: 0; }
+  .hero { padding-top: 40px; padding-bottom: 32px; padding-left: 16px; padding-right: 16px; }
+  h1 { font-size: clamp(32px, 8vw, 42px); white-space: normal; }
+  .hero-sub { font-size: 14px; }
   .col-head-row { grid-template-columns: 52px 1fr 1fr; }
   .day-row { grid-template-columns: 52px 1fr 1fr; }
   .date-day { font-size: 14px; }
@@ -503,13 +496,82 @@ h1 em {
   .notif-icon { width: 26px; height: 26px; font-size: 12px; }
   .ch-label { font-size: 11px; }
 }
+
+/* ── MOBILE: stack layout ── */
+@media (max-width: 500px) {
+  .hero, .timeline-outer, .filter-row, .source-line { padding-left: 0; padding-right: 0; }
+  .hero { padding-top: 32px; padding-bottom: 24px; padding-left: 16px; padding-right: 16px; }
+  h1 { font-size: clamp(34px, 9vw, 44px); letter-spacing: -0.03em; white-space: normal; }
+  .hero-sub { font-size: 13px; }
+
+  /* Hide column headers on mobile — context is clear from cards */
+  .col-head-row { display: none; }
+
+  /* Day row: date on top, then two card columns side by side */
+  .day-row {
+    display: flex !important;
+    flex-direction: column;
+    grid-template-columns: unset;
+    min-height: 0 !important;
+    height: auto;
+    padding: 10px 0 12px;
+  }
+
+  /* Reset event-cells-row to flex (overrides display:contents) */
+  .event-cells-row {
+    display: flex !important;
+  }
+
+  /* Date spans full width as a row header */
+  .date-cell {
+    flex-direction: row;
+    gap: 5px;
+    align-items: baseline;
+    justify-content: flex-start;
+    border-right: none;
+    border-bottom: none;
+    padding: 0 0 8px 0;
+    width: 100%;
+  }
+
+  .date-day { font-size: 13px; font-weight: 800; }
+  .date-mon { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+
+  /* Cards row: molefe + deposit side by side */
+  .event-cells-row {
+    gap: 8px;
+    width: 100%;
+  }
+
+  .event-cell {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    border-right: none !important;
+  }
+
+  /* Notifications fill their column */
+  .notif {
+    width: 100%;
+    padding: 8px 10px 8px 8px;
+  }
+
+  .notif-icon { width: 26px; height: 26px; font-size: 12px; border-radius: 6px; }
+  .notif-app  { font-size: 9px; }
+  .notif-title { font-size: 12px; }
+  .notif-sub  { font-size: 10px; }
+  .amount-val { font-size: 12px; }
+
+  .month-heading { font-size: 13px; letter-spacing: 0.03em; padding-top: 12px; }
+  .filter-row { gap: 6px; }
+  .pill { font-size: 11px; padding: 6px 11px; }
+}
 </style>
 </head>
 <body>
 
 <div class="hero">
-  <div class="hero-eyebrow">State Capture Investigation</div>
-  <h1>The <em>Saxonwold</em><br>Pattern</h1>
+  <h1>The Saxonwold Pattern</h1>
   <p class="hero-sub">Phone pings placing <strong>Brian Molefe</strong> near the <strong>Gupta compound</strong> — and cash deposits into <strong>Palcocap</strong> — tracked across <strong>eight months</strong> in 2015–2016.</p>
 </div>
 
@@ -573,7 +635,7 @@ const events = [
   { date:"2016-03-19", molefe:[], deposits:[{title:"Hartbeespoort ATM",sub:"Single deposit",amount:39000}] },
 ];
 
-const ICONS = { ping:'📍', call:'📞', deposit:'💳' };
+const ICONS = { ping:'📍', call:'📞', deposit:'ATM_SVG' };
 
 function fmtDate(d) {
   const dt = new Date(d+'T00:00:00');
@@ -599,6 +661,13 @@ function makeNotif(type, data, isDeposit, delay) {
   if (type === 'ping') {
     const span = document.createElement('span');
     span.textContent = ICONS[type];
+    icon.appendChild(span);
+  } else if (type === 'deposit') {
+    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" fill="none">  <!-- Body -->  <rect x="5" y="3" width="22" height="27" rx="2.5" fill="#fff" fill-opacity="0.25"/>  <rect x="5" y="3" width="22" height="27" rx="2.5" stroke="#fff" stroke-width="1.4"/>  <!-- Screen -->  <rect x="8.5" y="6.5" width="15" height="10" rx="1.2" fill="#fff" fill-opacity="0.5"/>  <rect x="10" y="8" width="6" height="1.2" rx="0.6" fill="#fff" fill-opacity="0.7"/>  <rect x="10" y="10.2" width="9" height="1.2" rx="0.6" fill="#fff" fill-opacity="0.7"/>  <rect x="10" y="12.4" width="7" height="1.2" rx="0.6" fill="#fff" fill-opacity="0.7"/>  <!-- Keypad dots -->  <rect x="9" y="20" width="4" height="3" rx="0.8" fill="#fff" fill-opacity="0.5"/>  <rect x="14" y="20" width="4" height="3" rx="0.8" fill="#fff" fill-opacity="0.5"/>  <rect x="19" y="20" width="4" height="3" rx="0.8" fill="#fff" fill-opacity="0.5"/>  <!-- Card slot -->  <rect x="8.5" y="25.5" width="15" height="2" rx="1" fill="#fff" fill-opacity="0.4"/>  <!-- Cash slot -->  <rect x="10" y="17.5" width="12" height="1.5" rx="0.75" fill="#fff" fill-opacity="0.5"/></svg>';
+  } else if (type === 'call') {
+    const span = document.createElement('span');
+    span.textContent = ICONS[type];
+    span.style.filter = 'brightness(0) invert(1)';
     icon.appendChild(span);
   } else {
     icon.textContent = ICONS[type];
@@ -694,9 +763,13 @@ Object.entries(groups).forEach(([month, rows]) => {
       delay += 60;
     });
 
+    const cellsRow = document.createElement('div');
+    cellsRow.className = 'event-cells-row';
+    cellsRow.appendChild(mCell);
+    cellsRow.appendChild(dCell);
+
     row.appendChild(dateCell);
-    row.appendChild(mCell);
-    row.appendChild(dCell);
+    row.appendChild(cellsRow);
     section.appendChild(row);
   });
 
@@ -745,13 +818,13 @@ function setFilter(f) {
 
 // ── SCROLL REVEAL ──
 const observer = new IntersectionObserver(entries => {
-  entries.forEach((entry, i) => {
+  entries.forEach(entry => {
     if (entry.isIntersecting) {
-      setTimeout(() => entry.target.classList.add('visible'), 0);
+      entry.target.classList.add('visible');
       observer.unobserve(entry.target);
     }
   });
-}, { threshold: 0.05 });
+}, { threshold: 0.01, rootMargin: '0px 0px 200px 0px' });
 
 document.querySelectorAll('.month-section').forEach(s => observer.observe(s));
 </script>
