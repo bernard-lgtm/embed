@@ -52,7 +52,7 @@ body {
 .hero {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 64px 48px 48px;
+  padding: 64px 48px 24px;
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -112,7 +112,7 @@ h1 em {
 .filter-row {
   display: flex;
   gap: 8px;
-  padding: 0 48px 32px;
+  padding: 0 48px 28px;
   max-width: 1100px;
   margin: 0 auto;
   flex-wrap: wrap;
@@ -156,7 +156,7 @@ h1 em {
 .timeline-outer {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 48px 80px;
+  padding: 0 48px 32px;
 }
 
 /* Sticky column headers */
@@ -170,24 +170,18 @@ h1 em {
   padding: 0 0 2px;
 }
 
-.col-head-row::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
-}
+
 
 .ch-blank { /* spacer */ }
 
 .ch-label {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   color: var(--text);
   text-align: center;
-  padding: 16px 18px 14px;
+  padding: 8px 18px 4px;
   position: relative;
 }
 
@@ -229,7 +223,7 @@ h1 em {
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--border);
+  background: var(--text);
 }
 
 /* Day row */
@@ -456,12 +450,7 @@ h1 em {
   gap: 8px;
 }
 
-.source-line::before {
-  content: '';
-  width: 16px; height: 1px;
-  background: var(--muted);
-  flex-shrink: 0;
-}
+
 
 /* ── ANIMATIONS ── */
 @keyframes fadeUp {
@@ -482,6 +471,19 @@ h1 em {
 
 /* Stagger delays set by JS */
 
+/* Hide mobile-only elements on desktop */
+.mobile-col-heads { display: none; }
+
+.row-hidden {
+  display: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+}
+
 /* ── RESPONSIVE ── */
 /* ── TABLET ── */
 @media (max-width: 700px) {
@@ -494,7 +496,7 @@ h1 em {
   .date-day { font-size: 14px; }
   .notif { padding: 7px 10px 7px 8px; }
   .notif-icon { width: 26px; height: 26px; font-size: 12px; }
-  .ch-label { font-size: 11px; }
+  .ch-label { font-size: 14px; }
 }
 
 /* ── MOBILE: stack layout ── */
@@ -504,8 +506,26 @@ h1 em {
   h1 { font-size: clamp(34px, 9vw, 44px); letter-spacing: -0.03em; white-space: normal; }
   .hero-sub { font-size: 13px; }
 
-  /* Hide column headers on mobile — context is clear from cards */
+  /* Column headers on mobile */
   .col-head-row { display: none; }
+  .mobile-col-heads {
+    display: flex;
+    padding: 8px 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+  .mobile-col-head {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--text);
+  }
+  .mobile-col-head:first-child {
+    border-right: 1px solid var(--border);
+  }
 
   /* Day row: date on top, then two card columns side by side */
   .day-row {
@@ -563,8 +583,8 @@ h1 em {
   .amount-val { font-size: 12px; }
 
   .month-heading { font-size: 13px; letter-spacing: 0.03em; padding-top: 12px; }
-  .filter-row { gap: 6px; }
-  .pill { font-size: 11px; padding: 6px 11px; }
+  .filter-row { gap: 6px; flex-wrap: wrap; }
+  .pill { font-size: 11px; padding: 6px 11px; flex: 1 1 calc(50% - 6px); justify-content: center; max-width: calc(50% - 6px); }
 }
 </style>
 </head>
@@ -590,6 +610,10 @@ h1 em {
   </button>
 </div>
 
+<div class="mobile-col-heads" id="mobileColHeads">
+  <div class="mobile-col-head">Brian Molefe</div>
+  <div class="mobile-col-head">Palcocap Cash Deposits</div>
+</div>
 <div class="timeline-outer">
   <div class="col-head-row">
     <div class="ch-blank"></div>
@@ -799,23 +823,18 @@ function setFilter(f) {
     if (f === 'both')    show = row.dataset.hasBoth === '1';
 
     if (show) {
-      row.style.display = isMobile ? 'flex' : 'grid';
-      // Force reflow before animating in
-      row.offsetHeight;
-      row.style.transition = 'opacity 0.25s ease';
+      row.classList.remove('row-hidden');
       row.style.opacity = '1';
     } else {
-      row.style.transition = 'opacity 0.2s ease';
-      row.style.opacity = '0';
-      setTimeout(() => {
-        if (currentFilter === f) row.style.display = 'none';
-      }, 210);
+      row.classList.add('row-hidden');
+      row.style.opacity = '';
     }
   });
 
   // Hide month sections entirely if all their rows are hidden
   document.querySelectorAll('.month-section').forEach(sec => {
-    const hasVisible = [...sec.querySelectorAll('.day-row')].some(r => r.style.display !== 'none');
+    const rows = [...sec.querySelectorAll('.day-row')];
+    const hasVisible = rows.some(r => !r.classList.contains('row-hidden'));
     sec.style.display = hasVisible ? '' : 'none';
   });
 }
