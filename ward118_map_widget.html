@@ -1,0 +1,197 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ward 118 — Weeks in the Dark</title>
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<style>
+  :root{
+    --ink:#0f1116; --panel:#171a21; --panel-line:#2a2f3a;
+    --text:#e9ecf2; --muted:#9aa3b2;
+    --c1:#6E0000; --c2:#C21807; --c3:#F03800;
+    --c4:#F79F1F; --c5:#F7D51D; --c6:#2E9E4F;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--ink)}
+  #map{position:absolute;inset:0;background:var(--ink)}
+
+  .ui{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    color:var(--text);
+  }
+
+  /* Title card */
+  .titlecard{
+    position:absolute;z-index:600;top:14px;left:14px;max-width:340px;
+    background:rgba(20,23,30,.92);border:1px solid var(--panel-line);
+    border-left:4px solid var(--c2);border-radius:4px;
+    padding:13px 16px;backdrop-filter:blur(4px);
+  }
+  .titlecard h1{
+    margin:0;font-size:19px;line-height:1.15;letter-spacing:.3px;
+    font-weight:800;text-transform:uppercase;
+  }
+  .titlecard .sub{margin:5px 0 0;font-size:12.5px;color:var(--muted);line-height:1.35}
+  .titlecard .src{margin:8px 0 0;font-size:10.5px;color:var(--muted);
+    border-top:1px solid var(--panel-line);padding-top:7px;letter-spacing:.2px}
+
+  /* Legend */
+  .legend{
+    position:absolute;z-index:600;bottom:16px;left:14px;
+    background:rgba(20,23,30,.92);border:1px solid var(--panel-line);border-radius:4px;
+    padding:11px 13px 12px;backdrop-filter:blur(4px);min-width:186px;
+  }
+  .legend .lh{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--muted);margin:0 0 8px}
+  .row{display:flex;align-items:center;gap:9px;padding:3px 4px;margin:1px -4px;
+    border-radius:3px;cursor:pointer;user-select:none;font-size:12.5px}
+  .row:hover{background:rgba(255,255,255,.05)}
+  .row.off{opacity:.38}
+  .dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;
+    box-shadow:0 0 6px rgba(0,0,0,.6)}
+  .row .lbl{flex:1}
+  .row .n{color:var(--muted);font-variant-numeric:tabular-nums;font-size:11.5px}
+  .legend .hint{font-size:10px;color:var(--muted);margin:8px 0 0;opacity:.8}
+
+  /* Popups */
+  .leaflet-popup-content-wrapper{
+    background:var(--panel);color:var(--text);border-radius:4px;
+    border:1px solid var(--panel-line)}
+  .leaflet-popup-tip{background:var(--panel);border:1px solid var(--panel-line)}
+  .leaflet-popup-content{margin:11px 13px;font-family:inherit}
+  .pop-st{font-size:14px;font-weight:700;margin:0}
+  .pop-sub{font-size:11.5px;color:var(--muted);margin:2px 0 7px}
+  .pop-tag{display:inline-block;font-size:11px;font-weight:700;color:#fff;
+    padding:2px 8px;border-radius:20px;letter-spacing:.2px}
+  .leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
+
+  @media (max-width:560px){
+    .titlecard{max-width:none;right:14px}
+    .titlecard h1{font-size:16px}
+  }
+</style>
+
+<div id="map" class="ui"></div>
+
+<div class="titlecard ui">
+  <h1>Ward 118 — Weeks in the Dark</h1>
+  <p class="sub">Power-outage duration by street across Johannesburg's inner-eastern suburbs. Click any point for detail.</p>
+  <p class="src">Source: Inner City Depot fault log · Daily Maverick</p>
+</div>
+
+<div class="legend ui" id="legend">
+  <p class="lh">Days without power</p>
+  <div id="legendrows"></div>
+  <p class="hint">Click a band to hide / show it</p>
+</div>
+
+<script>
+/* ---- Severity bands (worst → restored) ---- */
+const BANDS = [
+  {key:"20+ days",       color:"#6E0000", r:11},
+  {key:"14-20 days",     color:"#C21807", r:10},
+  {key:"10-13 days",     color:"#F03800", r:9 },
+  {key:"5-9 days",       color:"#F79F1F", r:8 },
+  {key:"1-4 days",       color:"#F7D51D", r:7 },
+  {key:"Restored (48h)", color:"#2E9E4F", r:7 },
+];
+const BAND = Object.fromEntries(BANDS.map(b => [b.key, b]));
+
+/* ---- Data (approximate coords, clustered by suburb) ---- */
+const POINTS = [
+  [-26.1745,28.1065,"Tainton Street","Cyrildene","20+ days",20],
+  [-26.1975,28.1120,"St Frusquin Street","Malvern","20+ days",20],
+  [-26.1885,28.1035,"Derby Road","Kensington","14-20 days",17],
+  [-26.1968,28.1135,"Jules Street","Malvern","14-20 days",17],
+  [-26.1980,28.1128,"11th Street","Malvern","14-20 days",17],
+  [-26.1990,28.1150,"Twentieth Street","Malvern","14-20 days",17],
+  [-26.1758,28.1078,"Rollo Street cluster","Cyrildene","14-20 days",17],
+  [-26.1815,28.0955,"Eckstein Street","Observatory","14-20 days",17],
+  [-26.1900,28.1050,"Ocean Street","Kensington","10-13 days",12],
+  [-26.1985,28.1160,"Persimmon Street cluster","Malvern","10-13 days",12],
+  [-26.1895,28.1060,"Pandora Road","Kensington","10-13 days",12],
+  [-26.1763,28.1086,"Silas & Siegfried cluster","Cyrildene","10-13 days",12],
+  [-26.1770,28.1072,"Beryl Street","Cyrildene","5-9 days",7],
+  [-26.1775,28.1080,"Christeen Avenue","Cyrildene","5-9 days",7],
+  [-26.1768,28.1090,"Cooper Street","Cyrildene","5-9 days",7],
+  [-26.1780,28.1075,"Daphne Street","Cyrildene","5-9 days",7],
+  [-26.1772,28.1095,"Marcia Street","Cyrildene","5-9 days",7],
+  [-26.1785,28.1082,"Friedland Avenue","Cyrildene","5-9 days",7],
+  [-26.1788,28.1070,"Hastings Avenue","Cyrildene","5-9 days",7],
+  [-26.1910,28.1045,"Orwell Street cluster","Kensington","5-9 days",7],
+  [-26.1888,28.1055,"Protea Street","Kensington","5-9 days",7],
+  [-26.1992,28.1152,"20th Street","Malvern","5-9 days",7],
+  [-26.2005,28.1185,"32nd / 33rd / 30th Street cluster","Malvern","5-9 days",7],
+  [-26.2045,28.1170,"Da Gama Street","Dewetshof","5-9 days",7],
+  [-26.2052,28.1178,"Turnstone Street","Dewetshof","5-9 days",7],
+  [-26.2048,28.1185,"Aida Avenue","Dewetshof","5-9 days",7],
+  [-26.2055,28.1182,"Dias Street","Dewetshof","5-9 days",7],
+  [-26.2050,28.1190,"Tulbach Street","Dewetshof","5-9 days",7],
+  [-26.1808,28.0968,"Observatory Avenue","Observatory","5-9 days",7],
+  [-26.1755,28.1100,"Devon Road","Cyrildene","1-4 days",3],
+  [-26.1750,28.1092,"Bayne Avenue","Cyrildene","1-4 days",3],
+  [-26.1762,28.1085,"Silas Street","Cyrildene","1-4 days",3],
+  [-26.1885,28.1037,"Derby Road (partial supply)","Kensington","1-4 days",3],
+  [-26.1978,28.1122,"10th Street","Malvern","1-4 days",3],
+  [-26.1972,28.1115,"St Amant Street","Malvern","1-4 days",3],
+  [-26.2050,28.1180,"Multiple streets (post-Sebenza)","Dewetshof","1-4 days",3],
+  [-26.1850,28.0900,"Bez Valley East feeder","Observatory","1-4 days",3],
+  [-26.1905,28.1030,"Queen Street","Kensington","Restored (48h)",0],
+  [-26.1920,28.1025,"Cumberland Road","Kensington","Restored (48h)",0],
+  [-26.2058,28.1175,"Dewetshof Retirement Village","Dewetshof","Restored (48h)",0],
+  [-26.1892,28.1042,"7th Avenue","Kensington","Restored (48h)",0],
+  [-26.1898,28.1068,"11th Avenue","Kensington","Restored (48h)",0],
+];
+
+/* ---- Map ---- */
+const map = L.map("map",{zoomControl:true,scrollWheelZoom:true})
+             .setView([-26.190,28.106],14);
+
+/* Dark editorial basemap (CARTO). To use plain OpenStreetMap instead, swap the
+   URL for: https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png */
+L.tileLayer(
+  "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  {maxZoom:19, subdomains:"abcd",
+   attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}
+).addTo(map);
+
+/* ---- Markers ---- */
+const layers = {};                       // one layer group per band
+BANDS.forEach(b => layers[b.key] = L.layerGroup().addTo(map));
+const counts = Object.fromEntries(BANDS.map(b => [b.key,0]));
+
+POINTS.forEach(([lat,lng,street,suburb,status,days]) => {
+  const b = BAND[status];
+  counts[status]++;
+  const daysTxt = status.startsWith("Restored") ? "Restored in last 48h"
+                : days + (days === 1 ? " day" : " days") + " without power";
+  L.circleMarker([lat,lng],{
+    radius:b.r, color:"#0b0d11", weight:1.5,
+    fillColor:b.color, fillOpacity:.92
+  }).bindPopup(
+      `<p class="pop-st">${street}</p>`+
+      `<p class="pop-sub">${suburb}</p>`+
+      `<span class="pop-tag" style="background:${b.color}">${daysTxt}</span>`
+  ).addTo(layers[status]);
+});
+
+/* ---- Legend (with click-to-filter) ---- */
+const rowsEl = document.getElementById("legendrows");
+BANDS.forEach(b => {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML =
+    `<span class="dot" style="background:${b.color}"></span>`+
+    `<span class="lbl">${b.key}</span>`+
+    `<span class="n">${counts[b.key]}</span>`;
+  row.onclick = () => {
+    row.classList.toggle("off");
+    if (map.hasLayer(layers[b.key])) map.removeLayer(layers[b.key]);
+    else layers[b.key].addTo(map);
+  };
+  rowsEl.appendChild(row);
+});
+</script>
